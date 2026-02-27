@@ -1,0 +1,44 @@
+from rest_framework import serializers
+
+from .models import Category, Todo
+
+# from django.contrib.auth.models import User
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    created_by = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ["id", "name", "description", "created_at", "created_by"]
+        read_only_fields = ["id", "created_at", "created_by"]
+
+
+class TodoSerializer(serializers.ModelSerializer):
+    """
+    Clase que simula ser el to_dict() de Flask
+    """
+
+    user = serializers.StringRelatedField(read_only=True)
+    category = CategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        source="category",
+        queryset=Category.objects.all(),
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
+
+    class Meta:
+        model = Todo
+        fields = [
+            "id",
+            "title",
+            "description",
+            "category",
+            "category_id",
+            "completed",
+            "created_at",
+            "user",
+        ]
+        read_only_fields = ["id", "created_at", "user"]
